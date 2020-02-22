@@ -1,2 +1,2 @@
 # Programiranje-mobilnih-app
-mobilna aplikacija za slusanje glazbe
+projekt kolegija Programiranje mobilnih aplikacija 2019/20
