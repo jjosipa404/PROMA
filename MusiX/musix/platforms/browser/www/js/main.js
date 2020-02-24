@@ -298,6 +298,11 @@ function metoda_db_put()
         {
            //console.log('status ok');
             songs_info = JSON.parse(zahtjev_db_put.responseText); 
+            addToSongsList(songs_info);
+            addToArtistsList(songs_info);
+            addToAlbumsList(songs_info);
+            addToGenresList(songs_info);
+            addToFavoritesList(songs_info);
             //console.log(zahtjev_db_put.responseText);
             //load_all_from_db();
             document.getElementById('song_title').innerHTML = document.getElementById('edit_song_name').value;
@@ -315,6 +320,8 @@ function metoda_db_put()
 //------------------------- DINAMICKO DODAVANJE <li> ELEMENATA - TRACKS --------------------------------------------------------------------------------
 function addToSongsList(songs) //metoda koja iz baze podataka generira elemente za pjesme i dodaje im event listenere
 {                              //songs je parametar kojem saljemo popis svih podataka o pjesmama iz baze
+    document.getElementById('ul_songs').innerHTML = '';
+    
     for (let i = 0; i < songs.length; i++) {
         const song_info = songs[i];
         if (i == 0) {
@@ -361,6 +368,8 @@ function addToSongsList(songs) //metoda koja iz baze podataka generira elemente 
 function addToArtistsList(songs) //metoda kojom se generiraju <li> tagovi koji predtavljaju izvodace
 {
     var artists = []; //niz u koji se spremaju izvdaci, bez ponavljanja
+    document.getElementById('ul_artists').innerHTML = '';
+
     for (let i = 0; i < songs.length; i++) 
     {
         const song_info = songs[i];
@@ -436,6 +445,7 @@ function addToArtistsList(songs) //metoda kojom se generiraju <li> tagovi koji p
 function addToAlbumsList(songs) //metoda kojom se generiraju <li> tagovi koji predstavljaju albume
 {
     var albums = []; //niz za spremanje albuma, bez ponavljanja
+    document.getElementById('ul_albums').innerHTML = '';
     for (let i = 0; i < songs.length; i++) 
     {
         const song_info = songs[i];
@@ -488,8 +498,8 @@ function addToAlbumsList(songs) //metoda kojom se generiraju <li> tagovi koji pr
         for (let i = 0; i < songs_info.length; i++)
         {
             var el = songs_info[i];
-            console.log('this:',$(this).find("a").find("h2")[0].innerText);
-            console.log(el['artist']);
+            //console.log('this:',$(this).find("a").find("h2")[0].innerText);
+            //console.log(el['artist']);
 
             if($(this).find("a").find("h2")[0].innerText == el['name'] && $(this).find("a").find("p")[0].innerText == el['artist']) 
             {
@@ -512,6 +522,8 @@ function addToAlbumsList(songs) //metoda kojom se generiraju <li> tagovi koji pr
 function addToGenresList(songs)
 {
     var genres = [];
+    document.getElementById('ul_genres').innerHTML = '';
+
     for (let i = 0; i < songs.length; i++) 
     {
         const song_info = songs[i]; 
@@ -587,6 +599,8 @@ function addToGenresList(songs)
 }
 function addToFavoritesList(songs) //metoda kojom se generiraju <li> tagovi koji predstavljaju favorite
 {
+    document.getElementById('ul_favorites').innerHTML = '';
+
     for (let i = 0; i < songs.length; i++) {
         const song_info = songs[i];
         var br = 0;
@@ -621,8 +635,8 @@ function addToFavoritesList(songs) //metoda kojom se generiraju <li> tagovi koji
         for (let i = 0; i < songs_info.length; i++) //prolazeci kroz popis detalja svih pjesama iz baze podataka trazimo podatke o pjesmi na koju je kliknuto
         {
             var el = songs_info[i];
-            console.log('this:',$(this).find("a").find("h2")[0].innerText);
-            console.log(el['artist']);
+            //console.log('this:',$(this).find("a").find("h2")[0].innerText);
+            //console.log(el['artist']);
 
             if($(this).find("a").find("h2")[0].innerText == el['name'] && $(this).find("a").find("p")[0].innerText == el['artist']) 
             {
