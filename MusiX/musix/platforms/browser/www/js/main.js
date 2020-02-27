@@ -24,17 +24,24 @@ var odgovor = new Object();
 var zahtjev_db = new XMLHttpRequest();
 var odgovor_db = new Object();
 
+var zahtjev_db_delete = new XMLHttpRequest();
+var odgovor_db_delete = new Object();
+
 var zahtjev_db_put = new XMLHttpRequest();
-var _objekt = new Object();
-var str_object = '';
+
+var zahtjev_db_post = new XMLHttpRequest();
 
 var favorites = [];
+var notfavorites = [];
 var username, password;
 var zahtjev_db_fav_get = new XMLHttpRequest();
 var odgovor_db_fav_get = new Object();
 
 var zahtjev_db_fav_post = new XMLHttpRequest();
 var odgovor_db_fav_post = new Object();
+
+var zahtjev_db_fav_put = new XMLHttpRequest();
+var odgovor_db_fav_put = new Object();
 
 /* API --> https://apiseeds.com/documentation/lyrics */
 //var songs_info = [{"_id":"5e2e08b41c9d44000014017c","name":"Thunder","artist":"Imagine Dragons","album":"Believer","genre":"pop","path":"music/Imagine Dragons - Thunder.mp3"},{"_id":"5e2e09f01c9d44000014017d","name":"Radioactive","artist":"Imagine Dragons","album":"Believer","genre":"pop rock","path":"music/Imagine Dragons - Radioactive.mp3"},{"_id":"5e2e0a481c9d44000014017e","name":"One More Light","artist":"Linkin park","album":"One More Light","genre":"pop rock","path":"music/Linkin Park - One More Light.mp3"},{"_id":"5e2e0ab81c9d44000014017f","name":"Battle Symphony","artist":"Linkin park","album":"One More Light","genre":"pop","path":"music/Linkin Park - One More Light.mp3"}];
@@ -92,6 +99,9 @@ function setUp() {
 
     document.getElementById('btnedit').addEventListener('click', get_song_info);
     document.getElementById('btnsave').addEventListener('click', save_song_info);
+    //document.getElementById('btndelete').addEventListener('click', delete_song_db);
+    //document.getElementById('btnsavenew').addEventListener('click', save_new_song_info);
+
     
     for (let i = 0; i < btn_settings.length; i++) {
         const element = btn_settings[i];
@@ -259,7 +269,16 @@ function metoda_db_fav_get()
             password = odgovor_db_fav_get[0]['user']['password'];
             favorites = odgovor_db_fav_get[0]['favorites'];
             
+            songs_info.forEach(song => {
+                if( favorites.includes(song['_id']) == false)
+                {
+                    console.log(song['_id']);
+                    notfavorites.push(song['_id']);
+                }
+                
+            });
             addToFavoritesList(songs_info);
+            addToNotFavoritesList(songs_info);
         }
     }
 }
@@ -286,7 +305,6 @@ function save_song_info() //metoda koja salje PUT zahtjev za spremanje ažuriran
     zahtjev_db_put.onreadystatechange = metoda_db_put;
     zahtjev_db_put.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     zahtjev_db_put.send(JSON.stringify(_object));  
-
 }
 function metoda_db_put()
 {
@@ -317,6 +335,79 @@ function metoda_db_put()
     }
 }
 
+//------------------------- PUT ZAHTJEV  - FAVORITES ------------------------------------------------------------------------------------------------------
+function save_to_fav_put() 
+{
+    //window.alert('put');
+    zahtjev_db_fav_put = new XMLHttpRequest();
+    zahtjev_db_fav_put.open('PUT',''.concat('http://',IP,':4000/favorites/',odgovor_db_fav_get[0]['_id']), true);     
+    
+    var _object = { user : { username:'Josipa', password:'josipa123'},
+                    favorites: favorites}; 
+    zahtjev_db_fav_put.onreadystatechange = metoda_db_fav_put;
+    zahtjev_db_fav_put.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    zahtjev_db_fav_put.send(JSON.stringify(_object));  
+}
+function metoda_db_fav_put()
+{
+    console.log('metoda db fav put');
+    if (zahtjev_db_fav_put.readyState == 4)
+    {
+        console.log('state 4');
+        if (zahtjev_db_fav_put.status == 200)
+        {
+            console.log('status ok');
+            favorites = JSON.parse(zahtjev_db_fav_put.responseText)[0]['favorites']; 
+            addToFavoritesList(songs_info);
+            addToNotFavoritesList(songs_info);
+            
+        }
+        else
+        {
+            console.log(zahtjev_db_fav_put.status);
+        }
+    }
+}
+//------------------------- POST ZAHTJEV  - TRACKS ------------------------------------------------------------------------------------------------------
+function save_new_song_info() //metoda koja salje POST zahtjev za spremanje nove pjesme u bazu podataka
+{
+    //window.alert('post new song');
+    zahtjev_db_post = new XMLHttpRequest();
+    zahtjev_db_post.open('POST',''.concat('http://',IP,':4000/tracks'), true);     
+    
+    var _object = { name : document.getElementById('save_song_name').value , 
+                artist: document.getElementById('save_song_artist').value, 
+                album: document.getElementById('save_song_album').value,
+                genre: document.getElementById('save_song_genre').value,
+                path: document.getElementById('_file').value 
+            };
+    zahtjev_db_post.onreadystatechange = metoda_db_post;
+    zahtjev_db_post.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    zahtjev_db_post.send(JSON.stringify(_object));  
+
+}
+function metoda_db_post()
+{
+    console.log('metoda db post');
+    if (zahtjev_db_post.readyState == 4)
+    {
+        console.log('state 4');
+        if (zahtjev_db_post.status == 200)
+        {
+            console.log('status ok');
+            songs_info = JSON.parse(zahtjev_db_post.responseText); 
+            addToSongsList(songs_info);
+            addToArtistsList(songs_info);
+            addToAlbumsList(songs_info);
+            addToGenresList(songs_info);
+            addToFavoritesList(songs_info);
+        }
+        else
+        {
+            console.log(zahtjev_db_put.status);
+        }
+    }
+}
 //------------------------- DINAMICKO DODAVANJE <li> ELEMENATA - TRACKS --------------------------------------------------------------------------------
 function addToSongsList(songs) //metoda koja iz baze podataka generira elemente za pjesme i dodaje im event listenere
 {                              //songs je parametar kojem saljemo popis svih podataka o pjesmama iz baze
@@ -600,13 +691,14 @@ function addToGenresList(songs)
 function addToFavoritesList(songs) //metoda kojom se generiraju <li> tagovi koji predstavljaju favorite
 {
     document.getElementById('ul_favorites').innerHTML = '';
+    document.getElementById('favorites').innerHTML = '';
 
     for (let i = 0; i < songs.length; i++) {
         const song_info = songs[i];
         var br = 0;
         favorites.forEach(fav => 
         {
-            if (fav == song_info['_id'] && br <= 4) 
+            if (fav == song_info['_id']) 
             {
                 if (i == 0) 
                 {
@@ -621,9 +713,13 @@ function addToFavoritesList(songs) //metoda kojom se generiraju <li> tagovi koji
                     var element = '<li data-icon="none" class="fpjesma" name="_song" id="'+ song_info['path'] + '"' +'><a class="ui-btn ui-btn-icon-right ui-icon-none" href="#"><h2>' + song_info["name"] + '</h2><p>' + song_info["artist"] + '</p></a></li>';
                 }       
             }
-            $("#ul_favorites").append(element);  
+            if (br <= 3) 
+            {
+                $("#ul_favorites").append(element); 
+                br = br + 1;             
+            } 
             $('#favorites').append(element);
-            br = br + 1;             
+                
 
         });
     }   
@@ -655,6 +751,64 @@ function addToFavoritesList(songs) //metoda kojom se generiraju <li> tagovi koji
         //console.log($(this).find("a").find("p")[0].innerText);
 
         window.location.href = "#song_page";
+    });
+}
+
+function addToNotFavoritesList(songs)
+{
+    document.getElementById('ul_song_to_fav').innerHTML = '';
+
+    for (let i = 0; i < songs.length; i++) {
+        const song_info = songs[i];
+        notfavorites.forEach(fav => 
+        {
+            if (fav == song_info['_id']) 
+            {
+                if (i == 0) 
+                {
+                    var element = '<li class="ui-first-child nfpjesma" data-icon="none" name="_song"><a class="ui-btn ui-btn-icon-right ui-icon-none" href="#" ><h2>' + song_info["name"] + '</h2><p>' + song_info["artist"] + '</p></a></li>';
+                }
+                else if (i == (songs.length - 1)) 
+                {
+                    var element = '<li class="ui-last-child nfpjesma" data-icon="none" name="_song"><a  class="ui-btn ui-btn-icon-right ui-icon-none"  href="#"><h2>' + song_info["name"] + '</h2><p>' + song_info["artist"] + '</p></a></li>';
+                }
+                else
+                {                 
+                    var element = '<li data-icon="none" class="nfpjesma" name="_song"><a class="ui-btn ui-btn-icon-right ui-icon-none" href="#"><h2>' + song_info["name"] + '</h2><p>' + song_info["artist"] + '</p></a></li>';
+                }       
+            }
+            $("#ul_song_to_fav").append(element); 
+        });
+    }
+
+    $('.nfpjesma').off();
+    $('.nfpjesma').on('click', function()
+    {
+        for (let i = 0; i < songs_info.length; i++) //prolazeci kroz popis detalja svih pjesama iz baze podataka trazimo podatke o pjesmi na koju je kliknuto
+        {
+            var el = songs_info[i];
+            //console.log('this:',$(this).find("a").find("h2")[0].innerText);
+            //console.log(el['artist']);
+
+            if($(this).find("a").find("h2")[0].innerText == el['name'] && $(this).find("a").find("p")[0].innerText == el['artist']) 
+            {
+                favorites.push(el['_id']);
+                var arr = [];
+                notfavorites.forEach(element => 
+                {
+                    if (element != el['_id']) 
+                    {
+                        arr.push(element);
+                    }
+                });
+                notfavorites = arr;
+                save_to_fav_put();
+                break;
+            }
+        }
+        //console.log($(this).find("a").find("h2")[0].innerText);
+        //console.log($(this).find("a").find("p")[0].innerText);
+
     })
 }
 

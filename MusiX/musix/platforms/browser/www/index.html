@@ -63,8 +63,24 @@
             <div data-role="header" data-position="fixed" > 
                 <h1>MusiX & LyriX</h1>
             </div> <!--header-->
-            <h3>Settings page</h3>
-            
+            <!--
+            <h3>Add new song to the app</h3>
+            <label for="save_song_name">Track name:</label>
+            <input id="save_song_name" >
+            <label for="save_song_artist">Artist name:</label>
+            <input id="save_song_artist">
+            <label for="save_song_album">Album name:</label>
+            <input id="save_song_album">
+            <label for="save_song_genre">Song genre:</label>
+            <input id="save_song_genre">
+            <label for="_file" >Choose a path to the song</label>
+            <input type="file"accept="audio/*" id="_file">
+            <button type="button" id="btnsavenew">Save new song</button>
+            -->
+            <h3>Choose songs to add to favorites</h3>
+            <div id="song_to_fav_list">
+                <ul data-role="listview" data-filter="true" data-filter-placeholder="Search songs..." data-inset="true" id="ul_song_to_fav"></ul>
+          </div><!-- song_to_fav_list-->
             <div class="jqm-footer" data-role="footer" data-position="fixed">
                     <div data-role="navbar">
                         <ul>
@@ -255,6 +271,7 @@
                 <input id="edit_song_path" readonly >
                 <button type="button" id="btnsave">Save changes</button>
                 <a href="./" data-rel="back"><button type="button">Cancel</button></a>
+                <button type="button" id="btndelete">Delete song</button>
                 
                 
             </div><!-- /content-->
